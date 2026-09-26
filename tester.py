@@ -1,19 +1,22 @@
 import os
 import sys
-from google import genai
+from openai import OpenAI
 
-# Initialize the client
-client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-
-# Create a multi-turn chat session with a system instruction
-chat = client.chats.create(
-    model="gemini-2.5-flash",
-    config={
-        "system_instruction": "You are a concise, helpful desktop assistant. Keep responses focused and direct."
-    }
+# Initialize the OpenAI client pointing to xAI's endpoint
+client = OpenAI(
+    api_key=os.environ.get("XAI_API_KEY"),
+    base_url="https://api.x.ai/v1",
 )
 
-print("AI Assistant initialized. Type 'quit' or 'exit' to stop.\n")
+# Maintain conversation memory
+messages = [
+    {
+        "role": "system",
+        "content": "You are a concise, helpful assistant. Keep responses focused and direct.",
+    }
+]
+
+print("Grok Assistant initialized. Type 'quit' or 'exit' to stop.\n")
 
 while True:
     try:
@@ -24,12 +27,27 @@ while True:
             print("Goodbye!")
             break
 
-        # Send message and stream the response
-        response = chat.send_message_stream(user_input)
-        print("Assistant: ", end="", flush=True)
-        for chunk in response:
-            print(chunk.text, end="", flush=True)
+        # Append user turn to message history
+        messages.append({"role": "user", "content": user_input})
+
+        # Request streamed completion
+        stream = client.chat.completions.create(
+            model="grok-2-latest",  # or "grok-3", "grok-beta" depending on your access
+            messages=messages,
+            stream=True,
+            temperature=0.7,
+        )
+
+        print("Grok: ", end="", flush=True)
+        assistant_reply = []
+        for chunk in stream:
+            delta = chunk.choices[0].delta.content or ""
+            print(delta, end="", flush=True)
+            assistant_reply.append(delta)
         print("\n")
+
+        # Save assistant's answer for multi-turn context
+        messages.append({"role": "assistant", "content": "".join(assistant_reply)})
 
     except (KeyboardInterrupt, EOFError):
         print("\nGoodbye!")
