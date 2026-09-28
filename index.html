@@ -1,1 +1,39 @@
-<p> how are you </p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Bot Chat</title>
+</head>
+<body>
+
+  <main id="chat-container">
+    <header>
+      <h1>Grok Assistant</h1>
+    </header>
+
+    <!-- Message history display area -->
+    <section id="chat-window" aria-live="polite">
+      <div id="messages-list">
+        <!-- Messages will be rendered here -->
+      </div>
+    </section>
+
+    <!-- User input form -->
+    <footer>
+      <form id="chat-form">
+        <label for="user-input" class="sr-only">Type your message:</label>
+        <input 
+          type="text" 
+          id="user-input" 
+          name="message" 
+          placeholder="Ask Grok anything..." 
+          autocomplete="off" 
+          required
+        >
+        <button type="submit" id="send-button">Send</button>
+      </form>
+    </footer>
+  </main>
+
+</body>
+</html>
